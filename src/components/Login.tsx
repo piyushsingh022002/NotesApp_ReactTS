@@ -1,123 +1,104 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import api from '../api';
 
-const Wrapper = styled.div`
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+const Page = styled.div`
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 2rem;
-  color: #fff;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(to right, #667eea, #764ba2);
 `;
 
-const FormCard = styled.div`
-  background: rgba(255, 255, 255, 0.1);
+const Card = styled.div`
+  background: #ffffff10;
+  backdrop-filter: blur(15px);
+  padding: 3rem 2rem;
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 3rem 3.5rem;
-  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   width: 100%;
+  max-width: 400px;
+  color: white;
 `;
 
 const Title = styled.h2`
-  margin-bottom: 1.5rem;
-  font-weight: 700;
-  font-size: 2rem;
   text-align: center;
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  font-size: 2rem;
 `;
 
 const Input = styled.input`
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
+  width: 100%;
+  padding: 0.9rem;
+  margin-bottom: 1.2rem;
   border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
   font-size: 1rem;
-  outline: none;
+
+  &::placeholder {
+    color: #eee;
+  }
 `;
 
-const SubmitButton = styled.button`
-  background: rgba(255, 255, 255, 0.3);
+const Button = styled.button`
+  width: 100%;
+  padding: 1rem;
+  background: #ff6b6b;
+  color: white;
+  font-weight: bold;
   border: none;
-  padding: 0.85rem;
   border-radius: 12px;
-  color: #fff;
-  font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1rem;
   cursor: pointer;
   transition: background 0.3s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: #ff5252;
   }
 `;
 
-const InfoText = styled.p`
-  font-size: 0.9rem;
-  text-align: center;
-  margin-top: 1rem;
-  color: #ddd;
-`;
-
 export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: '', password: '' });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate login logic
-    // Replace with real API call later
-    console.log('Logging in:', formData);
-
-    // On success:
-    navigate('/dashboard');
+    try {
+      const res = await api.post('/login', { email, password });
+      localStorage.setItem('token', res.data.token);
+      navigate('/dashboard');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Login failed');
+    }
   };
 
   return (
-    <Wrapper>
-      <FormCard>
-        <Title>Login to Your Account</Title>
-        <Form onSubmit={handleSubmit}>
+    <Page>
+      <Card>
+        <Title>Welcome Back</Title>
+        <form onSubmit={handleLogin}>
           <Input
             type="email"
-            name="email"
             placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
+            value={email}
+            onChange={e => setEmail(e.target.value)}
             required
-            autoComplete="email"
           />
           <Input
             type="password"
-            name="password"
             placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
+            value={password}
+            onChange={e => setPassword(e.target.value)}
             required
-            autoComplete="current-password"
           />
-          <SubmitButton type="submit">Login</SubmitButton>
-        </Form>
-        <InfoText>
-          Don't have an account?{' '}
-          <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/register')}>
-            Register here
-          </span>
-        </InfoText>
-      </FormCard>
-    </Wrapper>
+          <Button type="submit">Login</Button>
+        </form>
+      </Card>
+    </Page>
   );
 }

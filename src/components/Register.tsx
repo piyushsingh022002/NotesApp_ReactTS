@@ -1,132 +1,120 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import api from '../api';
 
-const Wrapper = styled.div`
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+const Page = styled.div`
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 2rem;
-  color: #fff;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(to left, #00c6ff, #0072ff);
 `;
 
-const FormCard = styled.div`
-  background: rgba(255, 255, 255, 0.1);
+const Card = styled.div`
+  background: #ffffff10;
+  backdrop-filter: blur(15px);
+  padding: 3rem 2rem;
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 3rem 3.5rem;
-  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   width: 100%;
+  max-width: 420px;
+  color: white;
 `;
 
 const Title = styled.h2`
-  margin-bottom: 1.5rem;
-  font-weight: 700;
-  font-size: 2rem;
   text-align: center;
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  font-size: 2rem;
 `;
 
 const Input = styled.input`
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
+  width: 100%;
+  padding: 0.9rem;
+  margin-bottom: 1.2rem;
   border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
   font-size: 1rem;
-  outline: none;
+
+  &::placeholder {
+    color: #eee;
+  }
 `;
 
-const SubmitButton = styled.button`
-  background: rgba(255, 255, 255, 0.3);
+const Button = styled.button`
+  width: 100%;
+  padding: 1rem;
+  background: #34d399;
+  color: white;
+  font-weight: bold;
   border: none;
-  padding: 0.85rem;
   border-radius: 12px;
-  color: #fff;
-  font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1rem;
   cursor: pointer;
   transition: background 0.3s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: #10b981;
   }
 `;
 
-const InfoText = styled.p`
-  font-size: 0.9rem;
-  text-align: center;
-  margin-top: 1rem;
-  color: #ddd;
-`;
-
 export default function Register() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate registration logic
-    // Replace with real API call later
-    console.log('Registering:', formData);
-
-    // On success:
-    navigate('/login');
+    try {
+      await api.post('/register', formData);
+      navigate('/login');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Registration failed');
+    }
   };
 
   return (
-    <Wrapper>
-      <FormCard>
+    <Page>
+      <Card>
         <Title>Create Account</Title>
-        <Form onSubmit={handleSubmit}>
+        <form onSubmit={handleRegister}>
           <Input
-            type="text"
-            name="username"
-            placeholder="Username"
-            value={formData.username}
+            name="name"
+            placeholder="Full Name"
+            value={formData.name}
             onChange={handleChange}
             required
-            autoComplete="username"
           />
           <Input
-            type="email"
             name="email"
+            type="email"
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
             required
-            autoComplete="email"
           />
           <Input
-            type="password"
             name="password"
+            type="password"
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
             required
-            autoComplete="new-password"
           />
-          <SubmitButton type="submit">Register</SubmitButton>
-        </Form>
-        <InfoText>
-          Already have an account?{' '}
-          <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/login')}>
-            Login here
-          </span>
-        </InfoText>
-      </FormCard>
-    </Wrapper>
+          <Button type="submit">Register</Button>
+        </form>
+      </Card>
+    </Page>
   );
 }
