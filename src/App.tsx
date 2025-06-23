@@ -1,9 +1,7 @@
+import Landing from "./components/Landing/Landing";
+
 const App = () => {
-  return (
-    <div>
-      <h1>React TS App Ready</h1>
-    </div>
-  );
+  return <Landing />;
 };
 
 export default App;
