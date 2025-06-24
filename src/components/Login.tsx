@@ -1,104 +1,73 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import api from '../api';
+import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
 
-const Page = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background: linear-gradient(to right, #667eea, #764ba2);
-`;
-
-const Card = styled.div`
-  background: #ffffff10;
-  backdrop-filter: blur(15px);
-  padding: 3rem 2rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  width: 100%;
+const FormWrapper = styled.div`
   max-width: 400px;
-  color: white;
+  margin: 5rem auto;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 8px;
 `;
-
-const Title = styled.h2`
-  text-align: center;
-  margin-bottom: 1.5rem;
-  font-weight: 600;
-  font-size: 2rem;
-`;
-
 const Input = styled.input`
   width: 100%;
-  padding: 0.9rem;
-  margin-bottom: 1.2rem;
-  border: none;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  font-size: 1rem;
-
-  &::placeholder {
-    color: #eee;
-  }
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 `;
-
 const Button = styled.button`
   width: 100%;
-  padding: 1rem;
-  background: #ff6b6b;
-  color: white;
-  font-weight: bold;
+  padding: 0.8rem;
+  background: #6C5DD3;
+  color: #fff;
   border: none;
-  border-radius: 12px;
-  font-size: 1rem;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background 0.3s ease;
-
-  &:hover {
-    background: #ff5252;
-  }
+  &:hover { opacity: 0.9; }
 `;
 
-export default function Login() {
-  const [email, setEmail] = useState('');
+const Login: React.FC = () => {
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await api.post('/login', { email, password });
-      localStorage.setItem('token', res.data.token);
+      const { data } = await axios.post(
+        'https://notesapp-itpb.onrender.com/api/auth/login',
+        { email, password }
+      );
+      localStorage.setItem('token', data.token);
       navigate('/dashboard');
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Login failed');
+    } catch (err) {
+      alert('Login failed');
     }
   };
 
   return (
-    <Page>
-      <Card>
-        <Title>Welcome Back</Title>
-        <form onSubmit={handleLogin}>
-          <Input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-          />
-          <Input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-          />
-          <Button type="submit">Login</Button>
-        </form>
-      </Card>
-    </Page>
+    <FormWrapper>
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit}>
+        <Input
+          type="email" placeholder="Email"
+          value={email} onChange={e => setEmail(e.target.value)}
+          required
+        />
+        <Input
+          type="password" placeholder="Password"
+          value={password} onChange={e => setPassword(e.target.value)}
+          required
+        />
+        <Button type="submit">Log In</Button>
+      </form>
+      <p>
+        Don't have an account? <Link to="/register">Register here</Link>
+      </p>
+    </FormWrapper>
   );
-}
+};
+
+export default Login;
